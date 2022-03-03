@@ -40,7 +40,7 @@ To run this application, please do the following steps below.
 
 2. Check out this source project on the IDE.
 
-3. Change the  parameters of the config file [application.properties](/src/main/resources/application.properties) as necessary.
+3. Change the  parameters of the config file [application.properties](/bookstore/src/main/resources/application.properties) as necessary.
 
 | Paramater Name      | Description                                        |
 |:--------------------|:---------------------------------------------------|
@@ -50,4 +50,4 @@ To run this application, please do the following steps below.
 | jdbc.password       | database password                                  |
 | jdbc.url            |                                                    |
 
-4. Create database and user in MySQL according to parameters in [application.properties](/src/main/resources/application.properties).
+4. Create database and user in MySQL according to parameters in [application.properties](/bookstore/src/main/resources/application.properties).
