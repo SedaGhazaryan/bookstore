@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Add Book</title>
+
+</head>
+<body>
+<nav class="navbar navbar-light bg-light navbar-fixed-top" style="background-color: #3d6ad6">
+    <div class="container">
+        <div class="navbar-header display-div1">
+            <div class="display-div2">
+                <p class="navbar-brand">Create Book Module</p>
+            </div>
+
+        </div>
+
+    </div>
+</nav>
+
+<div align="center">
+    <h1>New Book</h1>
+    <br />
+    <form action="#" th:action="@{/books/save}" th:object="${bookDto}"
+          method="post">
+
+        <table border="0" cellpadding="10">
+            <tr>
+                <td>Title:</td>
+                <td><input type="text" th:field="*{title}" /></td>
+            </tr>
+            <tr>
+                <td>Description:</td>
+                <td><input type="text" th:field="*{description}" /></td>
+            </tr>
+            <tr>
+                <td>Price</td>
+                <td><input type="number" th:field="*{price}" /></td>
+            </tr>
+            <tr>
+                <td>Author Name:</td>
+                <td><input type="text" th:field="*{authorName}" /></td>
+            </tr>
+            <tr>
+                <td><input type="hidden"  name="userId" th:value="${currentUser.id}"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">Save</button></td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

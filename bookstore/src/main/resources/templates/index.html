@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Book Store</title>
+    <style>
+        .navbar {
+            background-color: #3d6ad6;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 90%;
+            border-collapse: collapse;
+            border: 3px solid #070880;
+            margin: 10px;
+        }
+
+        th, td {
+            padding: 20px;
+            border: 2px solid #070880 !important;
+            background-color: #f4f4f4;
+        }
+
+        .content-all {
+            padding-top: 60px;
+            padding-left: 10px;
+        }
+
+        .display-div1 {
+            display: flex;
+            justify-content: space-between;
+            width: 100%
+        }
+
+        .display-div2 {
+            flex: 1 1 auto;
+            justify-content: flex-start;
+        }
+
+        .display-div3 {
+            flex: 0 0 auto;
+            justify-content: flex-end;
+            margin-left: 8px;
+        }
+
+    </style>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header display-div1">
+            <div class="display-div2">
+                <p class="navbar-brand">Home Module</p>
+            </div>
+            <div class="display-div3">
+                <form th:action="@{/logout}" method="post" style="padding: 15px">
+                    <input class="btn btn-default ribbon" type="submit" value="Logout"/>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</nav>
+<div class="content-all">
+    <h1>Welcome Book Store</h1>
+
+    <div th:if="${currentUser.userType.name() == 'ADMIN'} or ${currentUser.userType.name() == 'USER'} and ${currentUser.userStatus.name() != 'BLOCKED'}">
+        <div>
+            <div class="display-div1">
+                <div class="display-div2">
+                    <a class="btn btn-lg btn-success glyphicon glyphicon-plus" href="/newBook">Add Book</a>
+                </div>
+                <div class="display-div3">
+                    <input type="button" value="Show My Books" th:data-userId="${currentUser.id}"
+                           onclick="loadMyBooks(this.getAttribute('data-userId'))"/>
+                </div>
+            </div>
+            <h2>Books List</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Author Name</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="book : ${listBooks}">
+                    <td th:text="${book.id}">ID</td>
+                    <td th:text="${book.title}">Title</td>
+                    <td th:text="${book.price}">Price</td>
+                    <td th:text="${book.description}">Description</td>
+                    <td th:text="${book.authorName}">AuthorName</td>
+
+                    <td>
+                        <a class="btn btn-lg btn-warning glyphicon glyphicon-pencil"
+                           th:href="@{'/editBook/' + ${book.id}}">Edit</a>&nbsp;&nbsp;
+                        <a th:if="${currentUser.userType.name() == 'ADMIN'}"
+                           class="btn btn-lg btn-danger glyphicon glyphicon-trash"
+                           th:href="@{'/books/delete/' + ${book.id}}">Delete</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div th:if="${currentUser.userType.name() == 'USER'} and ${currentUser.userStatus.name() == 'BLOCKED'}">
+        <p style="color: red; font-size: 16px">Sorry you are blocked from admin...</p>
+    </div>
+    <div th:if="${currentUser.userType.name() == 'ADMIN'}">
+        <h2>User List</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${userList}">
+                <td th:text="${user.id}">ID</td>
+                <td th:text="${user.firstName}">First Name</td>
+                <td th:text="${user.lastName}">Last Name</td>
+                <td th:text="${user.email}">Email</td>
+
+                <td>
+                    <div th:switch="${user.userStatus.name()}">
+                        <a th:case="'ACTIVE'" th:href="@{'/user/block/' + ${user.id}}">Block User</a>
+                        <a th:case="'BLOCKED'" th:href="@{'/user/unblock/' + ${user.id}}">Unblock User</a>
+                    </div>
+                    <div>
+                        <input type="button" value="Show User's Books" th:data-userId="${user.id}"
+                               onclick="loadMyBooks(this.getAttribute('data-userId'))"/>
+                    </div>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="myBooks"></div>
+</div>
+
+</body>
+</html>
+<script>
+    function loadMyBooks(userId) {
+        $.ajax({
+            url: "/books/all/" + userId,
+            type: "POST",
+            dataType: 'json',
+            success: function (myBooks) {
+                var col = [];
+                for (var i = 0; i < myBooks.length; i++) {
+                    for (var key in myBooks[i]) {
+                        if (col.indexOf(key) === -1) {
+                            col.push(key);
+                        }
+                    }
+                }
+
+
+                var table = document.createElement("table");
+                var tr = table.insertRow(-1);
+                for (var i = 0; i < col.length; i++) {
+                    var th = document.createElement("th");
+                    th.innerHTML = col[i];
+                    tr.appendChild(th);
+                }
+                for (var i = 0; i < myBooks.length; i++) {
+                    tr = table.insertRow(-1);
+                    for (var j = 0; j < col.length; j++) {
+                        var tabCell = tr.insertCell(-1);
+                        tabCell.innerHTML = myBooks[i][col[j]];
+                    }
+                }
+
+                var h2 = document.createElement("h2");
+                h2.innerHTML = "User's books List";
+                $("#myBooks").empty().append(h2);
+                $("#myBooks").append(table);
+                console.log(myBooks);
+            }
+        });
+    }
+</script>
